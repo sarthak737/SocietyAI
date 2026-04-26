@@ -1,8 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3']
-  }
+    serverComponentsExternalPackages: ['sql.js']
+  },
+  webpack: (config) => {
+    // sql.js needs this for Node.js environment
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

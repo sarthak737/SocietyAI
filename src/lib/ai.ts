@@ -1,53 +1,78 @@
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-// Initialize OpenAI client - uses OPENAI_API_KEY from environment
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY,
-})
+// Initialize Gemini client - uses GEMINI_API_KEY from environment
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 export interface AIAnalysisResult {
   category: string
   urgency: 'low' | 'medium' | 'high' | 'critical'
   summary: string
   suggested_action: string
+  transcription?: string
 }
 
-export async function analyzeComplaint(complaintText: string): Promise<AIAnalysisResult> {
-  const prompt = `You are an AI assistant for a housing society management system. Analyze the following complaint and provide:
-1. Category: One of - plumbing, electrical, security, cleanliness, parking, noise, maintenance, safety, other
-2. Urgency: One of - low, medium, high, critical
-3. Summary: A brief 1-2 sentence summary of the issue
-4. Suggested Action: What should be done to resolve this
+export async function analyzeComplaint(
+  complaintText: string,
+  audioBase64?: string,
+  audioMimeType?: string
+): Promise<AIAnalysisResult> {
+  // Use gemini-1.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: { responseMimeType: 'application/json' },
+  })
 
-Complaint: "${complaintText}"
+  const prompt = `You are an AI assistant for a housing society management system in India. 
+You understand English, Hindi, Hinglish, and regional Indian contexts perfectly.
+Analyze the provided complaint (which may include text, audio, or both) and provide:
+1. category: One of - plumbing, electrical, security, cleanliness, parking, noise, maintenance, safety, other
+2. urgency: One of - low, medium, high, critical
+3. summary: A brief 1-2 sentence summary of the issue translated to clear English.
+4. suggested_action: What should be done to resolve this by the committee.
+5. transcription: If there is audio, provide the exact spoken text (transcription in the language spoken). If no audio, leave blank or echo the text.
 
-Respond in JSON format:
+Complaint Text (if any): "${complaintText}"
+
+Respond in strict JSON format:
 {
   "category": "...",
   "urgency": "...",
   "summary": "...",
-  "suggested_action": "..."
+  "suggested_action": "...",
+  "transcription": "..."
 }`
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a helpful housing society management assistant. Always respond with valid JSON.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 500,
-    })
+  const parts: any[] = [{ text: prompt }]
 
-    const response = completion.choices[0]?.message?.content || '{}'
-    const parsed = JSON.parse(response)
+  if (audioBase64 && audioMimeType) {
+    parts.push({
+      inlineData: {
+        data: audioBase64,
+        mimeType: audioMimeType
+      }
+    })
+  }
+
+  try {
+    const result = await model.generateContent(parts)
+    const responseText = result.response.text()
+    
+    // Safety fallback in case the model wraps JSON in markdown block
+    let cleanedText = responseText.trim()
+    if (cleanedText.startsWith('\`\`\`json')) {
+      cleanedText = cleanedText.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '')
+    } else if (cleanedText.startsWith('\`\`\`')) {
+      cleanedText = cleanedText.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '')
+    }
+    
+    const parsed = JSON.parse(cleanedText)
 
     return {
       category: parsed.category || 'other',
       urgency: parsed.urgency || 'medium',
-      summary: parsed.summary || complaintText.substring(0, 100),
-      suggested_action: parsed.suggested_action || 'Manual review required'
+      summary: parsed.summary || (complaintText ? complaintText.substring(0, 100) : 'Audio complaint'),
+      suggested_action: parsed.suggested_action || 'Manual review required',
+      transcription: parsed.transcription || complaintText
     }
   } catch (error) {
     console.error('AI Analysis error:', error)
@@ -55,22 +80,9 @@ Respond in JSON format:
     return {
       category: 'other',
       urgency: 'medium',
-      summary: complaintText.substring(0, 100),
-      suggested_action: 'Manual review required'
+      summary: complaintText ? complaintText.substring(0, 100) : 'Audio complaint received',
+      suggested_action: 'Manual review required',
+      transcription: complaintText
     }
-  }
-}
-
-export async function transcribeAudio(audioBuffer: Buffer): Promise<string> {
-  try {
-    const transcription = await openai.audio.transcriptions.create({
-      file: new File([audioBuffer], 'audio.webm', { type: 'audio/webm' }),
-      model: 'whisper-1',
-      response_format: 'text',
-    })
-    return transcription as string
-  } catch (error) {
-    console.error('Transcription error:', error)
-    throw new Error('Failed to transcribe audio')
   }
 }

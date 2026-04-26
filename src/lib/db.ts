@@ -1,33 +1,20 @@
-import Database from 'better-sqlite3'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
 
-const dbPath = path.join(process.cwd(), 'society.db')
-const db = new Database(dbPath)
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-// Initialize database tables
-db.exec(`
-  CREATE TABLE IF NOT EXISTS complaints (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    flat_number TEXT NOT NULL,
-    resident_name TEXT NOT NULL,
-    phone TEXT,
-    complaint_text TEXT NOT NULL,
-    audio_url TEXT,
-    category TEXT,
-    urgency TEXT,
-    summary TEXT,
-    suggested_action TEXT,
-    status TEXT DEFAULT 'open',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`)
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ['query'],
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 export interface Complaint {
   id: number
   flat_number: string
   resident_name: string
-  phone: string
+  phone: string | null
   complaint_text: string
   audio_url: string | null
   category: string | null
@@ -35,90 +22,78 @@ export interface Complaint {
   summary: string | null
   suggested_action: string | null
   status: string
-  created_at: string
-  updated_at: string
+  created_at: Date
+  updated_at: Date
 }
 
-export function createComplaint(data: {
+export async function createComplaint(data: {
   flat_number: string
   resident_name: string
   phone?: string
   complaint_text: string
   audio_url?: string
 }) {
-  const stmt = db.prepare(`
-    INSERT INTO complaints (flat_number, resident_name, phone, complaint_text, audio_url)
-    VALUES (?, ?, ?, ?, ?)
-  `)
-  const result = stmt.run(
-    data.flat_number,
-    data.resident_name,
-    data.phone || null,
-    data.complaint_text,
-    data.audio_url || null
-  )
-  return result.lastInsertRowid
+  const result = await prisma.complaint.create({
+    data: {
+      flat_number: data.flat_number,
+      resident_name: data.resident_name,
+      phone: data.phone || null,
+      complaint_text: data.complaint_text,
+      audio_url: data.audio_url || null,
+    },
+  })
+  return result.id
 }
 
-export function updateComplaintWithAI(id: number, data: {
+export async function updateComplaintWithAI(id: number, data: {
   category: string
   urgency: string
   summary: string
   suggested_action: string
 }) {
-  const stmt = db.prepare(`
-    UPDATE complaints
-    SET category = ?, urgency = ?, summary = ?, suggested_action = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `)
-  stmt.run(data.category, data.urgency, data.summary, data.suggested_action, id)
+  await prisma.complaint.update({
+    where: { id },
+    data: {
+      category: data.category,
+      urgency: data.urgency,
+      summary: data.summary,
+      suggested_action: data.suggested_action,
+    },
+  })
 }
 
-export function getComplaints(filters?: { status?: string; category?: string }) {
-  let query = 'SELECT * FROM complaints'
-  const params: string[] = []
-
-  if (filters?.status || filters?.category) {
-    const conditions: string[] = []
-    if (filters.status) {
-      conditions.push('status = ?')
-      params.push(filters.status)
-    }
-    if (filters.category) {
-      conditions.push('category = ?')
-      params.push(filters.category)
-    }
-    query += ' WHERE ' + conditions.join(' AND ')
-  }
-
-  query += ' ORDER BY created_at DESC'
-
-  const stmt = db.prepare(query)
-  return stmt.all(...params) as Complaint[]
+export async function getComplaints(filters?: { status?: string; category?: string }) {
+  return await prisma.complaint.findMany({
+    where: {
+      ...(filters?.status ? { status: filters.status } : {}),
+      ...(filters?.category ? { category: filters.category } : {}),
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  })
 }
 
-export function getComplaintById(id: number) {
-  const stmt = db.prepare('SELECT * FROM complaints WHERE id = ?')
-  return stmt.get(id) as Complaint | undefined
+export async function getComplaintById(id: number) {
+  return await prisma.complaint.findUnique({
+    where: { id },
+  })
 }
 
-export function updateComplaintStatus(id: number, status: string) {
-  const stmt = db.prepare('UPDATE complaints SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-  stmt.run(status, id)
+export async function updateComplaintStatus(id: number, status: string) {
+  await prisma.complaint.update({
+    where: { id },
+    data: { status },
+  })
 }
 
-export function getComplaintStats() {
-  const total = db.prepare('SELECT COUNT(*) as count FROM complaints').get() as { count: number }
-  const open = db.prepare("SELECT COUNT(*) as count FROM complaints WHERE status = 'open'").get() as { count: number }
-  const inProgress = db.prepare("SELECT COUNT(*) as count FROM complaints WHERE status = 'in-progress'").get() as { count: number }
-  const closed = db.prepare("SELECT COUNT(*) as count FROM complaints WHERE status = 'closed'").get() as { count: number }
+export async function getComplaintStats() {
+  const [total, open, inProgress, closed] = await Promise.all([
+    prisma.complaint.count(),
+    prisma.complaint.count({ where: { status: 'open' } }),
+    prisma.complaint.count({ where: { status: 'in_progress' } }),
+    prisma.complaint.count({ where: { status: 'closed' } }),
+  ])
 
-  return {
-    total: total.count,
-    open: open.count,
-    inProgress: inProgress.count,
-    closed: closed.count
-  }
+  return { total, open, inProgress, closed }
 }
-
-export default db

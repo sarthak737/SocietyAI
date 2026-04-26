@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || undefined
 
     if (searchParams.get('stats') === 'true') {
-      const stats = getComplaintStats()
+      const stats = await getComplaintStats()
       return NextResponse.json(stats)
     }
 
-    const complaints = getComplaints({ status, category })
+    const complaints = await getComplaints({ status, category })
     return NextResponse.json(complaints)
   } catch (error) {
     console.error('Error fetching complaints:', error)
@@ -25,31 +25,64 @@ export async function GET(request: NextRequest) {
 // POST - Create new complaint and process with AI
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { flat_number, resident_name, phone, complaint_text, audio_url } = body
+    let flat_number = ''
+    let resident_name = ''
+    let phone = ''
+    let complaint_text = ''
+    let audioBase64 = undefined
+    let audioMimeType = undefined
 
-    // Validate required fields
-    if (!flat_number || !resident_name || !complaint_text) {
+    const contentType = request.headers.get('content-type') || ''
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData()
+      flat_number = formData.get('flat_number') as string
+      resident_name = formData.get('resident_name') as string
+      phone = formData.get('phone') as string || ''
+      complaint_text = formData.get('complaint_text') as string || ''
+      
+      const audioFile = formData.get('audio') as File
+      if (audioFile && audioFile.size > 0) {
+        const arrayBuffer = await audioFile.arrayBuffer()
+        audioBase64 = Buffer.from(arrayBuffer).toString('base64')
+        audioMimeType = audioFile.type
+      }
+    } else {
+      const body = await request.json()
+      flat_number = body.flat_number
+      resident_name = body.resident_name
+      phone = body.phone || ''
+      complaint_text = body.complaint_text || ''
+    }
+
+    if (!flat_number || !resident_name || (!complaint_text && !audioBase64)) {
       return NextResponse.json(
-        { error: 'Missing required fields: flat_number, resident_name, complaint_text' },
+        { error: 'Missing required fields: flat_number, resident_name, and either text or audio complaint' },
         { status: 400 }
       )
     }
 
+    // Process with AI first
+    const aiResult = await analyzeComplaint(complaint_text, audioBase64, audioMimeType)
+
+    const finalComplaintText = complaint_text || aiResult.transcription || 'Audio complaint'
+
     // Create complaint in database
-    const complaintId = createComplaint({
+    const complaintId = await createComplaint({
       flat_number,
       resident_name,
       phone,
-      complaint_text,
-      audio_url,
+      complaint_text: finalComplaintText,
+      audio_url: audioBase64 ? 'audio-saved' : undefined,
     })
 
-    // Process with AI
-    const aiResult = await analyzeComplaint(complaint_text)
-
     // Update complaint with AI analysis
-    updateComplaintWithAI(Number(complaintId), aiResult)
+    await updateComplaintWithAI(Number(complaintId), {
+      category: aiResult.category,
+      urgency: aiResult.urgency,
+      summary: aiResult.summary,
+      suggested_action: aiResult.suggested_action
+    })
 
     return NextResponse.json({
       success: true,

@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id)
-    const complaint = getComplaintById(id)
+    const complaint = await getComplaintById(id)
 
     if (!complaint) {
       return NextResponse.json({ error: 'Complaint not found' }, { status: 404 })
@@ -38,12 +38,12 @@ export async function PATCH(
       )
     }
 
-    const complaint = getComplaintById(id)
+    const complaint = await getComplaintById(id)
     if (!complaint) {
       return NextResponse.json({ error: 'Complaint not found' }, { status: 404 })
     }
 
-    updateComplaintStatus(id, status)
+    await updateComplaintStatus(id, status)
 
     return NextResponse.json({ success: true, status })
   } catch (error) {
