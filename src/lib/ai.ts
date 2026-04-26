@@ -1,26 +1,26 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini client - uses GEMINI_API_KEY from environment
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export interface AIAnalysisResult {
-  category: string
-  urgency: 'low' | 'medium' | 'high' | 'critical'
-  summary: string
-  suggested_action: string
-  transcription?: string
+  category: string;
+  urgency: "low" | "medium" | "high" | "critical";
+  summary: string;
+  suggested_action: string;
+  transcription?: string;
 }
 
 export async function analyzeComplaint(
   complaintText: string,
   audioBase64?: string,
-  audioMimeType?: string
+  audioMimeType?: string,
 ): Promise<AIAnalysisResult> {
-  // Use gemini-1.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
+  // Use gemini-2.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    generationConfig: { responseMimeType: 'application/json' },
-  })
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
 
   const prompt = `You are an AI assistant for a housing society management system in India. 
 You understand English, Hindi, Hinglish, and regional Indian contexts perfectly.
@@ -40,49 +40,55 @@ Respond in strict JSON format:
   "summary": "...",
   "suggested_action": "...",
   "transcription": "..."
-}`
+}`;
 
-  const parts: any[] = [{ text: prompt }]
+  const parts: any[] = [{ text: prompt }];
 
   if (audioBase64 && audioMimeType) {
     parts.push({
       inlineData: {
         data: audioBase64,
-        mimeType: audioMimeType
-      }
-    })
+        mimeType: audioMimeType,
+      },
+    });
   }
 
   try {
-    const result = await model.generateContent(parts)
-    const responseText = result.response.text()
-    
+    const result = await model.generateContent(parts);
+    const responseText = result.response.text();
+
     // Safety fallback in case the model wraps JSON in markdown block
-    let cleanedText = responseText.trim()
-    if (cleanedText.startsWith('\`\`\`json')) {
-      cleanedText = cleanedText.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '')
-    } else if (cleanedText.startsWith('\`\`\`')) {
-      cleanedText = cleanedText.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '')
+    let cleanedText = responseText.trim();
+    if (cleanedText.startsWith("\`\`\`json")) {
+      cleanedText = cleanedText
+        .replace(/^\`\`\`json/, "")
+        .replace(/\`\`\`$/, "");
+    } else if (cleanedText.startsWith("\`\`\`")) {
+      cleanedText = cleanedText.replace(/^\`\`\`/, "").replace(/\`\`\`$/, "");
     }
-    
-    const parsed = JSON.parse(cleanedText)
+
+    const parsed = JSON.parse(cleanedText);
 
     return {
-      category: parsed.category || 'other',
-      urgency: parsed.urgency || 'medium',
-      summary: parsed.summary || (complaintText ? complaintText.substring(0, 100) : 'Audio complaint'),
-      suggested_action: parsed.suggested_action || 'Manual review required',
-      transcription: parsed.transcription || complaintText
-    }
+      category: parsed.category || "other",
+      urgency: parsed.urgency || "medium",
+      summary:
+        parsed.summary ||
+        (complaintText ? complaintText.substring(0, 100) : "Audio complaint"),
+      suggested_action: parsed.suggested_action || "Manual review required",
+      transcription: parsed.transcription || complaintText,
+    };
   } catch (error) {
-    console.error('AI Analysis error:', error)
+    console.error("AI Analysis error:", error);
     // Return default values on error
     return {
-      category: 'other',
-      urgency: 'medium',
-      summary: complaintText ? complaintText.substring(0, 100) : 'Audio complaint received',
-      suggested_action: 'Manual review required',
-      transcription: complaintText
-    }
+      category: "other",
+      urgency: "medium",
+      summary: complaintText
+        ? complaintText.substring(0, 100)
+        : "Audio complaint received",
+      suggested_action: "Manual review required",
+      transcription: complaintText,
+    };
   }
 }

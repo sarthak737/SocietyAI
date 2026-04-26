@@ -1,10 +1,19 @@
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+// Fallback to empty string or check if it exists so we don't crash on build
+const connectionString = process.env.DATABASE_URL || 'postgresql://user:pass@localhost:5432/db'
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
 
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
+    adapter,
     log: ['query'],
   })
 
