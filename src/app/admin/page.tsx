@@ -2,11 +2,12 @@ import DashboardStats from '@/components/DashboardStats'
 import ComplaintList from '@/components/ComplaintList'
 import CreateResident from '@/components/CreateResident'
 import Link from 'next/link'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function AdminDashboard() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
   if (!session || (session.user as any).role !== 'ADMIN') {
     redirect('/login?role=admin')

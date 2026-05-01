@@ -1,10 +1,11 @@
 import ComplaintForm from '@/components/ComplaintForm'
 import QAWidget from '@/components/QAWidget'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function ResidentPortal() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
   if (!session) {
     redirect('/login?role=resident')
