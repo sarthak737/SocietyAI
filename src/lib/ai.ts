@@ -92,3 +92,41 @@ Respond in strict JSON format:
     };
   }
 }
+
+export async function answerResidentQuestion(question: string, rules: string): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const prompt = `You are an AI assistant for a housing society. Answer the resident's question STRICTLY based on the provided Society Rules. If the answer is not in the rules, say "I cannot find the answer to this in the society rules. Please contact the admin." Do not make up rules.
+
+Society Rules:
+${rules}
+
+Resident Question:
+${question}`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("AI QA error:", error);
+    return "Sorry, I am currently unavailable to answer questions.";
+  }
+}
+
+export async function analyzeTrends(complaints: any[]): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  
+  const formattedComplaints = complaints.map(c => `[${c.category}] Flat ${c.flat_number}: ${c.summary} (Urgency: ${c.urgency})`).join('\n');
+  
+  const prompt = `You are a helpful property manager AI. Analyze the following recent complaints from our housing society and generate a brief Executive Summary report (max 3-4 paragraphs) highlighting any common trends, recurring issues, or areas that need immediate committee attention. Use bullet points for readability if needed.
+
+Recent Complaints:
+${formattedComplaints}`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("AI Trend Analysis error:", error);
+    return "Unable to generate trend analysis at this time.";
+  }
+}

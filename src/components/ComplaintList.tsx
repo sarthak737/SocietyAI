@@ -40,9 +40,22 @@ export default function ComplaintList({ isAdmin = false }: { isAdmin?: boolean }
   }
 
   const updateStatus = async (id: number, newStatus: string) => {
-    // In a real app we'd have a PUT endpoint
-    // For now we assume the list just shows data
-    alert(`Update status for ID ${id} to ${newStatus} (Endpoint pending)`)
+    try {
+      const res = await fetch(`/api/complaints/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      if (res.ok) {
+        // Refresh the list
+        fetchComplaints()
+      } else {
+        alert('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Error updating status')
+    }
   }
 
   if (loading) {
@@ -102,9 +115,15 @@ export default function ComplaintList({ isAdmin = false }: { isAdmin?: boolean }
                 {complaint.status.replace('_', ' ').toUpperCase()}
               </span>
               {isAdmin && (
-                <button className="text-gray-400 hover:text-gray-700 transition">
-                  <MoreVertical size={20} />
-                </button>
+                <select
+                  value={complaint.status}
+                  onChange={(e) => updateStatus(complaint.id, e.target.value)}
+                  className="text-xs px-2 py-1 rounded border border-gray-300 bg-white text-gray-700"
+                >
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="closed">Closed</option>
+                </select>
               )}
             </div>
           </div>

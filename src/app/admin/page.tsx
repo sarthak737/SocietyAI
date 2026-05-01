@@ -1,8 +1,17 @@
 import DashboardStats from '@/components/DashboardStats'
 import ComplaintList from '@/components/ComplaintList'
+import CreateResident from '@/components/CreateResident'
 import Link from 'next/link'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const session = await getServerSession()
+
+  if (!session || (session.user as any).role !== 'ADMIN') {
+    redirect('/login?role=admin')
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 animate-fade-in">
       <header className="flex justify-between items-center mb-8 py-4 border-b border-gray-200">
@@ -12,17 +21,27 @@ export default function AdminDashboard() {
           </h1>
           <p className="text-gray-500 mt-1 font-medium">Manage and resolve resident issues</p>
         </div>
-        <Link 
-          href="/" 
-          className="px-4 py-2 rounded-lg font-medium text-gray-600 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
-        >
-          Back to Portal
-        </Link>
+        <div className="flex gap-3">
+          <Link 
+            href="/admin/rules" 
+            className="px-4 py-2 rounded-lg font-medium text-white bg-indigo-600 shadow-sm hover:bg-indigo-700 transition-colors flex items-center gap-2"
+          >
+            Manage Knowledge Base
+          </Link>
+          <Link 
+            href="/" 
+            className="px-4 py-2 rounded-lg font-medium text-gray-600 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
+          >
+            Back to Portal
+          </Link>
+        </div>
       </header>
 
       <main>
         <DashboardStats />
         
+        <CreateResident />
+
         <div className="mt-12">
           <div className="flex justify-between items-end mb-6">
             <div>

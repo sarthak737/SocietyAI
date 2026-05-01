@@ -41,6 +41,7 @@ export async function createComplaint(data: {
   phone?: string
   complaint_text: string
   audio_url?: string
+  userId?: number
 }) {
   const result = await prisma.complaint.create({
     data: {
@@ -49,6 +50,7 @@ export async function createComplaint(data: {
       phone: data.phone || null,
       complaint_text: data.complaint_text,
       audio_url: data.audio_url || null,
+      userId: data.userId ? parseInt(data.userId as any) : null,
     },
   })
   return result.id

@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     let complaint_text = ''
     let audioBase64 = undefined
     let audioMimeType = undefined
+    let userId: number | undefined = undefined
 
     const contentType = request.headers.get('content-type') || ''
 
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
       resident_name = formData.get('resident_name') as string
       phone = formData.get('phone') as string || ''
       complaint_text = formData.get('complaint_text') as string || ''
+      if (formData.get('userId')) {
+        userId = parseInt(formData.get('userId') as string)
+      }
       
       const audioFile = formData.get('audio') as File
       if (audioFile && audioFile.size > 0) {
@@ -53,6 +57,7 @@ export async function POST(request: NextRequest) {
       resident_name = body.resident_name
       phone = body.phone || ''
       complaint_text = body.complaint_text || ''
+      userId = body.userId ? parseInt(body.userId) : undefined
     }
 
     if (!flat_number || !resident_name || (!complaint_text && !audioBase64)) {
@@ -74,6 +79,7 @@ export async function POST(request: NextRequest) {
       phone,
       complaint_text: finalComplaintText,
       audio_url: audioBase64 ? 'audio-saved' : undefined,
+      userId,
     })
 
     // Update complaint with AI analysis

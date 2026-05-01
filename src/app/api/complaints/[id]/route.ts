@@ -31,19 +31,21 @@ export async function PATCH(
     const body = await request.json()
     const { status } = body
 
-    if (!status || !['open', 'in-progress', 'closed'].includes(status)) {
+    if (!status || !['open', 'in-progress', 'in_progress', 'closed'].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be: open, in-progress, or closed' },
+        { error: 'Invalid status. Must be one of: open, in-progress, in_progress, closed' },
         { status: 400 }
       )
     }
+    // Normalize status to match database format (in-progress -> in_progress)
+    const normalizedStatus = status === 'in-progress' ? 'in_progress' : status
 
     const complaint = await getComplaintById(id)
     if (!complaint) {
       return NextResponse.json({ error: 'Complaint not found' }, { status: 404 })
     }
 
-    await updateComplaintStatus(id, status)
+    await updateComplaintStatus(id, normalizedStatus)
 
     return NextResponse.json({ success: true, status })
   } catch (error) {

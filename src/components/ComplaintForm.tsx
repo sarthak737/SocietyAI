@@ -2,12 +2,12 @@
 
 import { useState, useRef } from 'react'
 import { Mic, Square, Trash2, Loader2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 export default function ComplaintForm() {
+  const { data: session } = useSession()
+  
   const [formData, setFormData] = useState({
-    flat_number: '',
-    resident_name: '',
-    phone: '',
     complaint_text: '',
   })
   const [loading, setLoading] = useState(false)
@@ -56,6 +56,12 @@ export default function ComplaintForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!session?.user) {
+      setMessage('You must be logged in to submit a complaint.')
+      return
+    }
+
     if (!formData.complaint_text.trim() && !audioBlob) {
       setMessage('Please provide either a text description or a voice recording.')
       return
@@ -66,10 +72,13 @@ export default function ComplaintForm() {
 
     try {
       const submitData = new FormData()
-      submitData.append('flat_number', formData.flat_number)
-      submitData.append('resident_name', formData.resident_name)
-      submitData.append('phone', formData.phone)
+      // Automatically pull from secure session instead of user input
+      submitData.append('flat_number', (session.user as any).flat_number || 'Unknown')
+      submitData.append('resident_name', session.user.name || 'Unknown')
+      submitData.append('phone', (session.user as any).phone || '')
       submitData.append('complaint_text', formData.complaint_text)
+      // Attach the user ID to link the complaint securely
+      submitData.append('userId', (session.user as any).id)
       
       if (audioBlob) {
         submitData.append('audio', audioBlob, 'recording.webm')
@@ -77,14 +86,14 @@ export default function ComplaintForm() {
 
       const res = await fetch('/api/complaints', {
         method: 'POST',
-        body: submitData, // FormData is sent without Content-Type header so browser sets it with boundary
+        body: submitData,
       })
 
       const data = await res.json()
 
       if (res.ok) {
         setMessage('Complaint submitted successfully!')
-        setFormData({ flat_number: '', resident_name: '', phone: '', complaint_text: '' })
+        setFormData({ complaint_text: '' })
         setAudioBlob(null)
       } else {
         setMessage(data.error || 'Failed to submit complaint')
@@ -96,51 +105,18 @@ export default function ComplaintForm() {
     }
   }
 
+  if (!session) {
+    return <div className="text-center p-8 glass-panel rounded-2xl">Please log in to submit a complaint.</div>
+  }
+
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+    <div className="glass-panel rounded-3xl shadow-xl p-8 border border-white/60">
+      <div className="mb-6 pb-4 border-b border-gray-200">
+        <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">Submitting as</p>
+        <p className="text-lg font-bold text-gray-900">{session.user?.name} <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-sm ml-2">{(session.user as any).flat_number}</span></p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Flat Number *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.flat_number}
-              onChange={(e) => setFormData({ ...formData, flat_number: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              placeholder="e.g., A-101"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Resident Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.resident_name}
-              onChange={(e) => setFormData({ ...formData, resident_name: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              placeholder="Your Name"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-            placeholder="For updates (optional)"
-          />
-        </div>
-
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Complaint Description *
@@ -151,15 +127,15 @@ export default function ComplaintForm() {
               rows={4}
               value={formData.complaint_text}
               onChange={(e) => setFormData({ ...formData, complaint_text: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
               placeholder="Describe your issue or click the mic to record..."
             />
             
             <div className="absolute bottom-3 right-3 flex items-center gap-2">
               {audioBlob && (
-                <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+                <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium animate-pulse shadow-sm">
                   <span>Audio Recorded</span>
-                  <button type="button" onClick={removeAudio} className="hover:text-green-900">
+                  <button type="button" onClick={removeAudio} className="hover:text-green-900 transition-colors">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -186,7 +162,7 @@ export default function ComplaintForm() {
         <button
           type="submit"
           disabled={loading || (!formData.complaint_text.trim() && !audioBlob)}
-          className="w-full bg-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center"
+          className="w-full bg-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center justify-center"
         >
           {loading ? (
             <>
