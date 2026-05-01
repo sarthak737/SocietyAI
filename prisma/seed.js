@@ -13,6 +13,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // Original admin
   const adminEmail = 'admin@gmail.com';
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
@@ -31,6 +32,33 @@ async function main() {
     console.log('Superuser admin@gmail.com created successfully.');
   } else {
     console.log('Superuser already exists.');
+  }
+
+  // New admin requested by user
+  const newAdminEmail = 's@g.com';
+  const existingNewAdmin = await prisma.user.findUnique({
+    where: { email: newAdminEmail },
+  });
+
+  if (!existingNewAdmin) {
+    const hashedPassword = await bcrypt.hash('gupta2537', 10);
+    await prisma.user.create({
+      data: {
+        name: 'Admin',
+        email: newAdminEmail,
+        password: hashedPassword,
+        role: 'ADMIN',
+      },
+    });
+    console.log('Admin s@g.com created successfully.');
+  } else {
+    // Update password if already exists
+    const hashedPassword = await bcrypt.hash('gupta2537', 10);
+    await prisma.user.update({
+      where: { email: newAdminEmail },
+      data: { password: hashedPassword, role: 'ADMIN' },
+    });
+    console.log('Admin s@g.com already existed — password updated.');
   }
 }
 
