@@ -4,6 +4,10 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+import Link from 'next/link'
+import MyComplaints from '@/components/MyComplaints'
+import ResidentChat from '@/components/ResidentChat'
+
 export default async function ResidentPortal() {
   const session = await getServerSession(authOptions)
 
@@ -16,15 +20,23 @@ export default async function ResidentPortal() {
       <div className="mb-10 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-3">Report an Issue</h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Describe your problem or use the voice recorder to speak in your preferred language. 
+          Describe your problem or use the voice recorder to speak in your preferred language.
           Your Flat Number and details are automatically attached securely.
         </p>
       </div>
-      
+
       <div className="max-w-2xl mx-auto">
         <ComplaintForm />
       </div>
 
+      <div className="max-w-2xl mx-auto">
+        <Link href="/resident/rules" className="inline-block mb-4 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-medium hover:bg-indigo-100 transition">
+          View Society Rules
+        </Link>
+      </div>
+
+      <MyComplaints />
+      <ResidentChat />
       <QAWidget />
     </div>
   )

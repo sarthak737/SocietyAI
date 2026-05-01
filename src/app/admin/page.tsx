@@ -1,6 +1,7 @@
 import DashboardStats from '@/components/DashboardStats'
 import ComplaintList from '@/components/ComplaintList'
 import CreateResident from '@/components/CreateResident'
+import AdminChat from '@/components/AdminChat'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
@@ -49,15 +50,17 @@ export default async function AdminDashboard() {
               <h2 className="text-2xl font-bold text-gray-900">Recent Tickets</h2>
               <p className="text-gray-500 text-sm mt-1">AI-analyzed issues needing attention</p>
             </div>
-            
+
             <div className="flex gap-2">
               <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-white border border-gray-200 text-gray-700 shadow-sm hover:bg-gray-50">Filter</button>
               <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-white border border-gray-200 text-gray-700 shadow-sm hover:bg-gray-50">Sort</button>
             </div>
           </div>
-          
+
           <ComplaintList isAdmin={true} />
         </div>
+
+        <AdminChat />
       </main>
     </div>
   )

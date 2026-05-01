@@ -1,6 +1,6 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
@@ -9,30 +9,52 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const role = searchParams.get('role') || 'resident'
-  
+  const { data: session, status } = useSession()
+  const errorParam = searchParams.get('error')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [error, setError] = useState(errorParam ? 'Invalid credentials' : '')
   const [loading, setLoading] = useState(false)
+
+  // If already logged in, redirect immediately
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      const userRole = (session.user as any).role
+      if (userRole === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/resident')
+      }
+    }
+  }, [status, session])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    const res = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    })
+    try {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      })
 
-    setLoading(false)
-
-    if (res?.error) {
-      setError('Invalid credentials')
-    } else {
-      router.push(role === 'admin' ? '/admin' : '/resident')
-      router.refresh()
+      if (res?.error) {
+        setError('Invalid credentials')
+        setLoading(false)
+      } else {
+        // Trigger a router refresh so session propagates to Navbar
+        router.refresh()
+        // Then navigate
+        const redirectUrl = role === 'admin' ? '/admin' : '/resident'
+        router.push(redirectUrl)
+      }
+    } catch (err) {
+      console.error('Sign in error:', err)
+      setError('An error occurred during sign in')
+      setLoading(false)
     }
   }
 
@@ -42,7 +64,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2 capitalize">{role} Login</h2>
           <p className="text-gray-500">
-            {role === 'admin' 
+            {role === 'admin'
               ? 'Login with admin@gmail.com and admin@123'
               : 'Enter your resident credentials'}
           </p>

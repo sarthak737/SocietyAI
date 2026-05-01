@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getComplaintById, updateComplaintStatus } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
+// Do not generate static pages for this dynamic route
+export async function generateStaticParams() {
+  return []
+}
+
 // GET - Fetch single complaint
 export async function GET(
   request: NextRequest,
