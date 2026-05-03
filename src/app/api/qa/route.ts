@@ -12,7 +12,14 @@ export async function POST(request: NextRequest) {
 
     // Fetch all rules
     const rulesRecords = await prisma.societyRule.findMany()
-    const rulesText = rulesRecords.map(r => `[${r.topic}]: ${r.content}`).join('\n\n')
+    const rulesText = rulesRecords
+        .map((r: { topic: string; content: string }) =>
+          r.topic && r.content
+            ? `[${r.topic}]: ${r.content}`
+            : ''
+        )
+        .filter(Boolean)
+        .join('\n\n')
 
     if (!rulesText) {
       return NextResponse.json({ answer: "I'm sorry, but no society rules have been added to the knowledge base yet." })
