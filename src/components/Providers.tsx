@@ -32,10 +32,18 @@ export default function Providers({
   const [loading, setLoading] = useState(false)
   const pathname = usePathname()
 
-  // Reset loading state on route change
+  // Reset loading state on route change or safety timeout
   useEffect(() => {
     setLoading(false)
+    
+    // Safety timeout: Never allow the spinner to stay up more than 15 seconds
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 15000)
+    
+    return () => clearTimeout(timer)
   }, [pathname])
+
 
 
   return (

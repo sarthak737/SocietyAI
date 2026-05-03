@@ -50,8 +50,10 @@ function LoginForm() {
         setLoading(false)
       } else {
         toast.success('Successfully logged in!')
-        setGlobalLoading(true) // Show global spinner while redirecting
-        router.refresh()
+        setGlobalLoading(true)
+        // Direct navigation to target page
+        const target = role.toUpperCase() === 'ADMIN' ? '/admin' : '/resident'
+        router.push(target)
       }
     } catch (err) {
       console.error('Sign in error:', err)

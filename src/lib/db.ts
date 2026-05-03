@@ -14,7 +14,8 @@ if (process.env.NODE_ENV === 'production') {
     connectionString,
     max: 10, // Limit connections
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000,
+
   })
   const adapter = new PrismaPg(pool)
   prisma = new PrismaClient({ adapter })
