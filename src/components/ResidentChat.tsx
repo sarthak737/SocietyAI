@@ -98,7 +98,7 @@ export default function ResidentChat({ complaintId }: { complaintId?: number }) 
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Official Communication</h3>
       </div>
       
-      <div ref={panelRef} className="h-64 overflow-y-auto space-y-3 p-3 bg-gray-50 dark:bg-slate-900/50 rounded-xl mb-4 border border-gray-100 dark:border-slate-800">
+      <div ref={panelRef} className="min-h-[250px] max-h-[50vh] h-80 overflow-y-auto space-y-3 p-3 bg-gray-50 dark:bg-slate-900/50 rounded-xl mb-4 border border-gray-100 dark:border-slate-800">
         {messages.map(msg => (
           <div
             key={msg.id}

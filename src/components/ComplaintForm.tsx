@@ -138,7 +138,7 @@ export default function ComplaintForm() {
               rows={4}
               value={formData.complaint_text}
               onChange={(e) => setFormData({ ...formData, complaint_text: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-gray-900 dark:text-gray-100"
+              className="w-full px-4 py-3 pb-16 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-gray-900 dark:text-gray-100"
               placeholder="Describe your issue or click the mic to record..."
             />
             

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { AlertTriangle, Clock, CheckCircle2, MoreVertical, MessageSquare } from 'lucide-react'
+import { FormattedDate } from './FormattedDate'
 
 interface Complaint {
   id: number
@@ -111,14 +112,16 @@ export default function ComplaintList({ isAdmin = false, initialComplaints }: { 
     <div className="space-y-4">
       {complaints.map((complaint) => (
         <div key={complaint.id} className="glass-panel p-6 rounded-2xl hover:shadow-soft transition-all duration-300 animate-slide-up group">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-3 mb-4">
             <div className="flex items-center gap-3">
               <div className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-3 py-1.5 rounded-lg">
                 {complaint.flat_number}
               </div>
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-900 dark:text-gray-100">{complaint.resident_name}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{new Date(complaint.created_at).toLocaleDateString()}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <FormattedDate date={complaint.created_at} />
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -159,7 +162,7 @@ export default function ComplaintList({ isAdmin = false, initialComplaints }: { 
             )}
 
             {isAdmin && complaint.suggested_action && (
-              <div className="ml-auto flex items-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-md">
+              <div className="w-full sm:w-auto sm:ml-auto flex items-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-md mt-2 sm:mt-0">
                 <span className="font-semibold text-xs mr-1">AI Suggests:</span>
                 <span className="text-xs">{complaint.suggested_action}</span>
               </div>

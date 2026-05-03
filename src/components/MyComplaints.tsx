@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { AlertTriangle, Clock, CheckCircle2, MessageSquare } from 'lucide-react'
+import { FormattedDate } from './FormattedDate'
 
 interface Complaint {
   id: number
@@ -88,10 +89,12 @@ export default function MyComplaints({ initialComplaints }: { initialComplaints?
         <div className="space-y-4">
           {complaints.map((complaint) => (
             <div key={complaint.id} className="glass-panel p-5 rounded-2xl">
-              <div className="flex justify-between items-start mb-3">
+              <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2 mb-3">
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">{complaint.summary || complaint.complaint_text}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(complaint.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <FormattedDate date={complaint.created_at} />
+                  </p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(complaint.status)}`}>
                   {complaint.status.replace('_', ' ').toUpperCase()}

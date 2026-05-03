@@ -7,9 +7,9 @@ A premium, AI-driven Housing Society Management System built with **Next.js 14**
 ## ✨ Key Features
 
 ### 🤖 AI-Powered Complaint Management
-- **Automatic Classification:** Complaints are automatically categorized (Plumbing, Electrical, Security, etc.) using Gemini AI.
+- **Automatic Classification:** Complaints are automatically categorized (Plumbing, Electrical, Security, etc.) using **Gemini 2.5 Flash**.
 - **Urgency Detection:** AI detects the urgency level (Low to Critical) based on the resident's input.
-- **Multimodal Support:** Residents can submit complaints via **Text or Voice** (Audio analysis powered by Gemini).
+- **Multimodal Support:** Residents can submit complaints via **Text or Voice** (Audio analysis powered by Gemini 2.5 Flash).
 - **Intelligent Summarization:** Automatically generates concise summaries for the admin dashboard.
 
 ### 👤 Resident Portal

@@ -16,9 +16,9 @@ export async function analyzeComplaint(
   audioBase64?: string,
   audioMimeType?: string,
 ): Promise<AIAnalysisResult> {
-  // Use gemini-1.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
+  // Use gemini-2.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -97,7 +97,7 @@ export async function answerResidentQuestion(
   question: string,
   rules: string,
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `You are an AI assistant for a housing society. Answer the resident's question STRICTLY based on the provided Society Rules. If the answer is not in the rules, say "I cannot find the answer to this in the society rules. Please contact the admin." Do not make up rules.
 
 Society Rules:
@@ -116,7 +116,7 @@ ${question}`;
 }
 
 export async function analyzeTrends(complaints: any[]): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const formattedComplaints = complaints
     .map(
@@ -133,8 +133,13 @@ ${formattedComplaints}`;
   try {
     const result = await model.generateContent(prompt);
     return result.response.text();
-  } catch (error) {
-    console.error("AI Trend Analysis error:", error);
+  } catch (error: any) {
+    console.error("AI Trend Analysis error details:", {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText,
+      errorDetails: error.errorDetails
+    });
     return "Unable to generate trend analysis at this time.";
   }
 }
