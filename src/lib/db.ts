@@ -122,12 +122,13 @@ export async function updateComplaintStatus(id: number, status: string) {
 }
 
 export async function getComplaintStats() {
-  const [total, open, inProgress, closed] = await Promise.all([
+  const [total, open, inProgress, closed, critical] = await Promise.all([
     prisma.complaint.count(),
     prisma.complaint.count({ where: { status: 'open' } }),
     prisma.complaint.count({ where: { status: 'in_progress' } }),
     prisma.complaint.count({ where: { status: 'closed' } }),
+    prisma.complaint.count({ where: { urgency: 'critical' } }),
   ])
 
-  return { total, open, inProgress, closed }
+  return { total, open, inProgress, closed, critical }
 }
