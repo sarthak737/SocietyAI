@@ -19,13 +19,10 @@ function LoginForm() {
 
   // If already logged in, redirect immediately
   useEffect(() => {
-    if (status === 'authenticated' && session) {
+    if (status === 'authenticated' && session?.user) {
       const userRole = (session.user as any).role
-      if (userRole === 'ADMIN') {
-        router.push('/admin')
-      } else {
-        router.push('/resident')
-      }
+      const target = userRole === 'ADMIN' ? '/admin' : '/resident'
+      window.location.href = target
     }
   }, [status, session])
 
@@ -35,22 +32,11 @@ function LoginForm() {
     setError('')
 
     try {
-      const res = await signIn('credentials', {
-        redirect: false,
+      await signIn('credentials', {
         email,
         password,
+        callbackUrl: role === 'admin' ? '/admin' : '/resident',
       })
-
-      if (res?.error) {
-        setError('Invalid credentials')
-        setLoading(false)
-      } else {
-        // Trigger a router refresh so session propagates to Navbar
-        router.refresh()
-        // Then navigate
-        const redirectUrl = role === 'admin' ? '/admin' : '/resident'
-        router.push(redirectUrl)
-      }
     } catch (err) {
       console.error('Sign in error:', err)
       setError('An error occurred during sign in')
