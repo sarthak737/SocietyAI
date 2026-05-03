@@ -93,7 +93,10 @@ Respond in strict JSON format:
   }
 }
 
-export async function answerResidentQuestion(question: string, rules: string): Promise<string> {
+export async function answerResidentQuestion(
+  question: string,
+  rules: string,
+): Promise<string> {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `You are an AI assistant for a housing society. Answer the resident's question STRICTLY based on the provided Society Rules. If the answer is not in the rules, say "I cannot find the answer to this in the society rules. Please contact the admin." Do not make up rules.
 
@@ -114,9 +117,14 @@ ${question}`;
 
 export async function analyzeTrends(complaints: any[]): Promise<string> {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-  
-  const formattedComplaints = complaints.map(c => `[${c.category}] Flat ${c.flat_number}: ${c.summary} (Urgency: ${c.urgency})`).join('\n');
-  
+
+  const formattedComplaints = complaints
+    .map(
+      (c) =>
+        `[${c.category}] Flat ${c.flat_number}: ${c.summary} (Urgency: ${c.urgency})`,
+    )
+    .join("\n");
+
   const prompt = `You are a helpful property manager AI. Analyze the following recent complaints from our housing society and generate a brief Executive Summary report (max 3-4 paragraphs) highlighting any common trends, recurring issues, or areas that need immediate committee attention. Use bullet points for readability if needed.
 
 Recent Complaints:

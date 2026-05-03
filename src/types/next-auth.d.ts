@@ -2,7 +2,7 @@ import "next-auth"
 
 declare module "next-auth" {
   interface User {
-    id: number
+    id: string
     role: string
     flat_number?: string | null
     phone?: string | null
@@ -10,7 +10,7 @@ declare module "next-auth" {
 
   interface Session {
     user: User & {
-      id: number
+      id: string
       role: string
       flat_number?: string | null
       phone?: string | null
