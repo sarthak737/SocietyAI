@@ -16,9 +16,9 @@ export async function analyzeComplaint(
   audioBase64?: string,
   audioMimeType?: string,
 ): Promise<AIAnalysisResult> {
-  // Use gemini-2.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
+  // Use gemini-1.5-flash as it is fast, free-tier friendly, and supports multimodal (audio) inputs
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
