@@ -124,6 +124,7 @@ export default function AdminChat() {
             <span className="text-[10px] text-gray-500 mb-1 px-1">
               {msg.isFromAdmin ? 'Admin (You)' : (msg.sender?.name || `Resident ${msg.senderId}`)}
               {msg.isFromAdmin && msg.receiverId === null && <span className="ml-1 text-indigo-500 font-bold">(Broadcast)</span>}
+              {msg.isFromAdmin && msg.receiverId !== null && <span className="ml-1 text-indigo-500 font-medium">(To: {residents.find(r => r.id === msg.receiverId)?.name || `Resident ${msg.receiverId}`})</span>}
             </span>
             <div
               className={`max-w-[85%] p-2.5 rounded-2xl text-sm ${
