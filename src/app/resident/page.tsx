@@ -18,8 +18,8 @@ export default async function ResidentPortal() {
   return (
     <div className="max-w-4xl mx-auto p-6 animate-fade-in relative min-h-[calc(100vh-80px)]">
       <div className="mb-10 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">Report an Issue</h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">Report an Issue</h2>
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Describe your problem or use the voice recorder to speak in your preferred language.
           Your Flat Number and details are automatically attached securely.
         </p>
@@ -30,7 +30,7 @@ export default async function ResidentPortal() {
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <Link href="/resident/rules" className="inline-block mb-4 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-medium hover:bg-indigo-100 transition">
+        <Link href="/resident/rules" className="inline-block mb-4 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition">
           View Society Rules
         </Link>
       </div>

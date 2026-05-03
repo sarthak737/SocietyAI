@@ -42,67 +42,67 @@ export default function CreateResident() {
   }
 
   return (
-    <div className="glass-panel rounded-3xl p-8 mb-12 shadow-sm border border-white/60">
-      <div className="flex items-center gap-3 mb-6 border-b border-gray-200 pb-4">
-        <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+    <div className="glass-panel rounded-3xl p-8 mb-12 shadow-sm border border-white/60 dark:border-slate-800">
+      <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-slate-700 pb-4">
+        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
           <UserPlus size={24} />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Add New Resident</h2>
-          <p className="text-sm text-gray-500">Create an account for a new resident</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add New Resident</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Create an account for a new resident</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Email</label>
             <input
               type="email"
               required
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Flat Number</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Flat Number</label>
             <input
               type="text"
               required
               value={formData.flat_number}
               onChange={e => setFormData({ ...formData, flat_number: e.target.value })}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
               placeholder="e.g. A-101"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Temporary Password</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Temporary Password</label>
             <input
               type="text"
               required
               value={formData.password}
               onChange={e => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number (Optional)</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Phone Number (Optional)</label>
             <input
               type="tel"
               value={formData.phone}
               onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function CreateResident() {
         </button>
 
         {message && (
-          <div className={`p-3 rounded-lg text-sm font-medium inline-block mt-4 ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          <div className={`p-3 rounded-lg text-sm font-medium inline-block mt-4 ${message.includes('success') ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
             {message}
           </div>
         )}

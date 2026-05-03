@@ -36,8 +36,8 @@ export default function ResidentRules() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <BookOpen className="w-6 h-6 text-indigo-600" />
+      <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+        <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
         Society Rules
       </h2>
       {rules.length === 0 ? (
@@ -46,8 +46,8 @@ export default function ResidentRules() {
         <div className="space-y-4">
           {rules.map(rule => (
             <div key={rule.id} className="glass-panel p-5 rounded-2xl">
-              <h3 className="font-semibold text-lg text-gray-800 mb-1">{rule.topic}</h3>
-              <p className="text-gray-700 whitespace-pre-wrap">{rule.content}</p>
+              <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-1">{rule.topic}</h3>
+              <p className="text-gray-700 dark:text-gray-400 whitespace-pre-wrap">{rule.content}</p>
             </div>
           ))}
         </div>

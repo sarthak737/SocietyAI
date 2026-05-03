@@ -70,37 +70,37 @@ export default function RulesPage() {
   return (
     <div className="max-w-6xl mx-auto p-6 animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-slate-800">Knowledge Base</h1>
-        <p className="text-slate-600">Manage rules and information that the AI Assistant uses to answer resident queries.</p>
+        <h1 className="text-3xl font-bold mb-2 text-slate-800 dark:text-gray-100">Knowledge Base</h1>
+        <p className="text-slate-600 dark:text-gray-400">Manage rules and information that the AI Assistant uses to answer resident queries.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Section */}
         <div className="lg:col-span-1">
           <div className="glass-panel p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <PlusCircle className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               Add New Rule
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Topic</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">Topic</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Swimming Pool Timings"
-                  className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
                   value={formData.topic}
                   onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">Content</label>
                 <textarea
                   required
                   rows={6}
                   placeholder="The pool is open from 6:00 AM to 10:00 PM..."
-                  className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 />
@@ -119,8 +119,8 @@ export default function RulesPage() {
         {/* List Section */}
         <div className="lg:col-span-2">
           <div className="glass-panel p-6 min-h-[400px]">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               Current Rules
             </h2>
             
@@ -129,16 +129,16 @@ export default function RulesPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
               </div>
             ) : rules.length === 0 ? (
-              <div className="text-center text-slate-500 py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+              <div className="text-center text-slate-500 dark:text-gray-400 py-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
                 No rules added yet. Start adding rules to power your AI assistant!
               </div>
             ) : (
               <div className="space-y-4">
                 {rules.map((rule) => (
-                  <div key={rule.id} className="p-4 border border-slate-100 rounded-xl bg-white shadow-sm flex items-start justify-between group">
+                  <div key={rule.id} className="p-4 border border-slate-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800/50 shadow-sm flex items-start justify-between group">
                     <div>
-                      <h3 className="font-semibold text-slate-800 text-lg mb-1">{rule.topic}</h3>
-                      <p className="text-slate-600 whitespace-pre-wrap text-sm">{rule.content}</p>
+                      <h3 className="font-semibold text-slate-800 dark:text-gray-100 text-lg mb-1">{rule.topic}</h3>
+                      <p className="text-slate-600 dark:text-gray-400 whitespace-pre-wrap text-sm">{rule.content}</p>
                     </div>
                     <button
                       onClick={() => handleDelete(rule.id)}
