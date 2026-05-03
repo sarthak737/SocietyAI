@@ -3,7 +3,9 @@
 import { SessionProvider } from "next-auth/react"
 import { Session } from "next-auth"
 import { Toaster } from 'react-hot-toast'
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
 import GlobalSpinner from './GlobalSpinner'
 
 interface LoadingContextType {
@@ -28,6 +30,13 @@ export default function Providers({
   session?: Session | null
 }) {
   const [loading, setLoading] = useState(false)
+  const pathname = usePathname()
+
+  // Reset loading state on route change
+  useEffect(() => {
+    setLoading(false)
+  }, [pathname])
+
 
   return (
     <SessionProvider session={session}>

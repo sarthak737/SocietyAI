@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useRef } from 'react'
+
 import { Mic, Square, Trash2, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+
+
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-hot-toast'
 
 export default function ComplaintForm() {
   const { data: session } = useSession()
+  const router = useRouter()
+
   
   const [formData, setFormData] = useState({
     complaint_text: '',
@@ -96,7 +102,11 @@ export default function ComplaintForm() {
         toast.success('Complaint submitted successfully!')
         setFormData({ complaint_text: '' })
         setAudioBlob(null)
+        // Trigger refresh for other components like MyComplaints
+        window.dispatchEvent(new Event('refreshComplaints'))
+        router.refresh()
       } else {
+
         toast.error(data.error || 'Failed to submit complaint')
       }
     } catch (error) {

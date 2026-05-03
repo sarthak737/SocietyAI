@@ -8,12 +8,20 @@ import Link from 'next/link'
 import MyComplaints from '@/components/MyComplaints'
 import ResidentChat from '@/components/ResidentChat'
 
+import { getComplaintsByUserId } from '@/lib/db'
+
 export default async function ResidentPortal() {
   const session = await getServerSession(authOptions)
 
   if (!session) {
     redirect('/login?role=resident')
   }
+
+  // Fetch data on server
+  const userId = (session.user as any).id
+  const complaints = await getComplaintsByUserId(Number(userId))
+  const serializedComplaints = JSON.parse(JSON.stringify(complaints))
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 animate-fade-in relative min-h-[calc(100vh-80px)]">
@@ -35,7 +43,8 @@ export default async function ResidentPortal() {
         </Link>
       </div>
 
-      <MyComplaints />
+      <MyComplaints initialComplaints={serializedComplaints} />
+
       <ResidentChat />
       <QAWidget />
     </div>

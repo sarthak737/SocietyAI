@@ -17,12 +17,22 @@ interface Complaint {
   created_at: string
 }
 
-export default function ComplaintList({ isAdmin = false }: { isAdmin?: boolean }) {
-  const [complaints, setComplaints] = useState<Complaint[]>([])
-  const [loading, setLoading] = useState(true)
+export default function ComplaintList({ isAdmin = false, initialComplaints }: { isAdmin?: boolean, initialComplaints?: Complaint[] }) {
+  const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints || [])
+  const [loading, setLoading] = useState(!initialComplaints)
 
   useEffect(() => {
-    fetchComplaints()
+    if (initialComplaints) {
+      setComplaints(initialComplaints)
+      setLoading(false)
+    } else {
+      fetchComplaints()
+    }
+
+
+    const handleRefresh = () => fetchComplaints()
+    window.addEventListener('refreshComplaints', handleRefresh)
+    return () => window.removeEventListener('refreshComplaints', handleRefresh)
   }, [])
 
   const fetchComplaints = async () => {
@@ -41,11 +51,12 @@ export default function ComplaintList({ isAdmin = false }: { isAdmin?: boolean }
 
   const updateStatus = async (id: number, newStatus: string) => {
     try {
-      const res = await fetch(`/api/complaints/${id}`, {
+      const res = await fetch(`/api/complaints?id=${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       })
+
       if (res.ok) {
         // Refresh the list
         fetchComplaints()

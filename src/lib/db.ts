@@ -98,6 +98,16 @@ export async function getComplaints(filters?: { status?: string; category?: stri
   })
 }
 
+export async function getComplaintsByUserId(userId: number) {
+  return await prisma.complaint.findMany({
+    where: { userId },
+    orderBy: {
+      created_at: 'desc',
+    },
+  })
+}
+
+
 export async function getComplaintById(id: number) {
   return await prisma.complaint.findUnique({
     where: { id },

@@ -3,14 +3,26 @@
 import { useEffect, useState } from 'react'
 import { Activity, CheckCircle, Clock, AlertCircle, TrendingUp, X, Loader2 } from 'lucide-react'
 
-export default function DashboardStats() {
-  const [stats, setStats] = useState({ total: 0, open: 0, inProgress: 0, critical: 0 })
+interface Stats {
+  total: number
+  open: number
+  inProgress: number
+  critical: number
+}
+
+export default function DashboardStats({ initialStats }: { initialStats?: Stats }) {
+  const [stats, setStats] = useState(initialStats || { total: 0, open: 0, inProgress: 0, critical: 0 })
   const [trendReport, setTrendReport] = useState<string | null>(null)
   const [loadingTrend, setLoadingTrend] = useState(false)
 
   useEffect(() => {
-    fetchStats()
-  }, [])
+    if (initialStats) {
+      setStats(initialStats)
+    } else {
+      fetchStats()
+    }
+  }, [initialStats])
+
 
   const fetchStats = async () => {
     try {

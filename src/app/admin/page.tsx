@@ -7,12 +7,22 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+import { getComplaints, getComplaintStats } from '@/lib/db'
+
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions)
 
   if (!session || (session.user as any).role !== 'ADMIN') {
     redirect('/login?role=admin')
   }
+
+  // Fetch data on server for smooth loading transition
+  const complaints = await getComplaints()
+  const stats = await getComplaintStats()
+  
+  // Convert Date objects to ISO strings for serialization to client components
+  const serializedComplaints = JSON.parse(JSON.stringify(complaints))
+
 
   return (
     <div className="max-w-6xl mx-auto p-6 animate-fade-in">
@@ -40,9 +50,10 @@ export default async function AdminDashboard() {
       </header>
 
       <main>
-        <DashboardStats />
+        <DashboardStats initialStats={stats} />
         
         <CreateResident />
+
 
         <div className="mt-12">
           <div className="flex justify-between items-end mb-6">
@@ -57,7 +68,8 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          <ComplaintList isAdmin={true} />
+          <ComplaintList isAdmin={true} initialComplaints={serializedComplaints} />
+
         </div>
 
         <AdminChat />

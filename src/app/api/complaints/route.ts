@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createComplaint, updateComplaintWithAI, getComplaints, getComplaintStats } from '@/lib/db'
+import { createComplaint, updateComplaintWithAI, getComplaints, getComplaintStats, updateComplaintStatus } from '@/lib/db'
 import { analyzeComplaint } from '@/lib/ai'
 export const dynamic = 'force-dynamic'
 
@@ -99,5 +99,34 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating complaint:', error)
     return NextResponse.json({ error: 'Failed to create complaint' }, { status: 500 })
+  }
+}
+
+// PATCH - Update complaint status
+export async function PATCH(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const idStr = searchParams.get('id')
+    
+    if (!idStr) {
+      return NextResponse.json({ error: 'Missing complaint ID' }, { status: 400 })
+    }
+    
+    const id = parseInt(idStr)
+    const body = await request.json()
+    const { status } = body
+
+    if (!status || !['open', 'in_progress', 'closed'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid status. Must be one of: open, in_progress, closed' },
+        { status: 400 }
+      )
+    }
+
+    await updateComplaintStatus(id, status)
+    return NextResponse.json({ success: true, status })
+  } catch (error) {
+    console.error('Error updating complaint:', error)
+    return NextResponse.json({ error: 'Failed to update complaint' }, { status: 500 })
   }
 }
