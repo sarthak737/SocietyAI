@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createComplaint, updateComplaintWithAI, getComplaints, getComplaintStats } from '@/lib/db'
 import { analyzeComplaint } from '@/lib/ai'
+export const dynamic = 'force-dynamic'
 
 // GET - Fetch all complaints or filtered
 export async function GET(request: NextRequest) {
