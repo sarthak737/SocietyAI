@@ -1,7 +1,7 @@
 'use client'
 
 import { signIn, useSession } from 'next-auth/react'
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 
