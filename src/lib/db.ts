@@ -1,6 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
@@ -8,13 +6,9 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient }
 const connectionString = process.env.DATABASE_URL || ''
 
 const createPrismaClient = () => {
-  if (connectionString) {
-    const pool = new Pool({ connectionString })
-    const adapter = new PrismaPg(pool)
-    return new PrismaClient({ adapter, log: ['query'] })
-  }
-  // Fallback for build time if DATABASE_URL is missing
-  return new PrismaClient({ log: ['error'] })
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  })
 }
 
 export const prisma = globalForPrisma.prisma || createPrismaClient()

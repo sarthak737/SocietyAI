@@ -9,10 +9,12 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
+        const intendedRole = credentials.role?.toUpperCase() || 'RESIDENT'
 
         // Auto-seed admin account on first login attempt if it doesn't exist
         if (credentials.email === "admin@gmail.com") {
@@ -38,6 +40,11 @@ export const authOptions: NextAuthOptions = {
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
         if (!isPasswordValid) return null
+
+        // Role verification
+        if (user.role !== intendedRole) {
+          throw new Error(`You do not have permission to log in as ${intendedRole}`)
+        }
 
         return {
           id: user.id.toString(),

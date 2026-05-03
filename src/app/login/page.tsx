@@ -14,7 +14,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(errorParam ? 'Invalid credentials' : '')
+  const [error, setError] = useState(errorParam ? (errorParam === 'CredentialsSignin' ? 'Invalid credentials' : errorParam) : '')
   const [loading, setLoading] = useState(false)
 
   // If already logged in, redirect immediately
@@ -35,6 +35,7 @@ function LoginForm() {
       await signIn('credentials', {
         email,
         password,
+        role: role.toUpperCase(),
         callbackUrl: role === 'admin' ? '/admin' : '/resident',
       })
     } catch (err) {
