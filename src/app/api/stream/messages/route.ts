@@ -15,7 +15,10 @@ export async function GET(request: NextRequest) {
 
   const interval = setInterval(async () => {
     try {
-      const messages = await prisma.message.findMany({ orderBy: { created_at: 'asc' } })
+      const messages = await prisma.message.findMany({ 
+        include: { sender: { select: { name: true } } },
+        orderBy: { created_at: 'asc' } 
+      })
       const payload = JSON.stringify(messages)
       await writer.write(encoder.encode(`data: ${payload}\n\n`))
     } catch (e) {

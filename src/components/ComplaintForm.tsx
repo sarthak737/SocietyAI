@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Mic, Square, Trash2, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import { toast } from 'react-hot-toast'
 
 export default function ComplaintForm() {
   const { data: session } = useSession()
@@ -39,7 +40,7 @@ export default function ComplaintForm() {
       setIsRecording(true)
     } catch (err) {
       console.error('Error accessing microphone', err)
-      setMessage('Microphone access denied. Please allow microphone permissions.')
+      toast.error('Microphone access denied. Please allow microphone permissions.')
     }
   }
 
@@ -63,7 +64,7 @@ export default function ComplaintForm() {
     }
 
     if (!formData.complaint_text.trim() && !audioBlob) {
-      setMessage('Please provide either a text description or a voice recording.')
+      toast.error('Please provide either a text description or a voice recording.')
       return
     }
 
@@ -92,14 +93,14 @@ export default function ComplaintForm() {
       const data = await res.json()
 
       if (res.ok) {
-        setMessage('Complaint submitted successfully!')
+        toast.success('Complaint submitted successfully!')
         setFormData({ complaint_text: '' })
         setAudioBlob(null)
       } else {
-        setMessage(data.error || 'Failed to submit complaint')
+        toast.error(data.error || 'Failed to submit complaint')
       }
     } catch (error) {
-      setMessage('Error submitting complaint')
+      toast.error('Error submitting complaint')
     } finally {
       setLoading(false)
     }
@@ -174,15 +175,7 @@ export default function ComplaintForm() {
           )}
         </button>
 
-        {message && (
-          <div className={`p-4 rounded-xl text-center font-medium ${
-            message.includes('success') 
-              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
-              : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-          }`}>
-            {message}
-          </div>
-        )}
+
       </form>
     </div>
   )

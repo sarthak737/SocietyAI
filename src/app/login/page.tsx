@@ -4,6 +4,8 @@ import { signIn, useSession } from 'next-auth/react'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { useLoading } from '@/components/Providers'
 
 function LoginForm() {
   const router = useRouter()
@@ -11,6 +13,7 @@ function LoginForm() {
   const role = searchParams.get('role') || 'resident'
   const { data: session, status } = useSession()
   const errorParam = searchParams.get('error')
+  const { setLoading: setGlobalLoading } = useLoading()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,8 +46,11 @@ function LoginForm() {
 
       if (res?.error) {
         setError(res.error === 'CredentialsSignin' ? 'Invalid credentials' : res.error)
+        toast.error(res.error === 'CredentialsSignin' ? 'Invalid credentials' : res.error)
         setLoading(false)
       } else {
+        toast.success('Successfully logged in!')
+        setGlobalLoading(true) // Show global spinner while redirecting
         router.refresh()
       }
     } catch (err) {

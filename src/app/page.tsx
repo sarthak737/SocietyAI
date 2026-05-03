@@ -1,7 +1,18 @@
 import Link from 'next/link'
 import { ShieldCheck, Home as HomeIcon } from 'lucide-react'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await getServerSession(authOptions)
+
+  if (session?.user) {
+    const role = (session.user as any).role
+    if (role === 'ADMIN') redirect('/admin')
+    else redirect('/resident')
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-6 animate-fade-in">
       <div className="text-center mb-16 max-w-3xl">

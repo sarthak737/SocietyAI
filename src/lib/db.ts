@@ -7,18 +7,30 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient }
 // Fallback to empty string or check if it exists so we don't crash on build
 const connectionString = process.env.DATABASE_URL || ''
 
-const createPrismaClient = () => {
-  const pool = new Pool({ connectionString })
-  const adapter = new PrismaPg(pool)
-  return new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+let prisma: PrismaClient
+
+if (process.env.NODE_ENV === 'production') {
+  const pool = new Pool({ 
+    connectionString,
+    max: 10, // Limit connections
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   })
+  const adapter = new PrismaPg(pool)
+  prisma = new PrismaClient({ adapter })
+} else {
+  if (!globalForPrisma.prisma) {
+    const pool = new Pool({ connectionString })
+    const adapter = new PrismaPg(pool)
+    globalForPrisma.prisma = new PrismaClient({ 
+      adapter,
+      log: ['query', 'error', 'warn'] 
+    })
+  }
+  prisma = globalForPrisma.prisma
 }
 
-export const prisma = globalForPrisma.prisma || createPrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+export { prisma }
 
 export interface Complaint {
   id: number

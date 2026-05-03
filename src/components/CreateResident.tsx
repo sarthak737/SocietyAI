@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { UserPlus, Loader2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 export default function CreateResident() {
   const [formData, setFormData] = useState({
@@ -29,13 +30,13 @@ export default function CreateResident() {
       const data = await res.json()
 
       if (res.ok) {
-        setMessage('Resident account created successfully!')
+        toast.success('Resident account created successfully!')
         setFormData({ name: '', email: '', password: '', flat_number: '', phone: '' })
       } else {
-        setMessage(data.error || 'Failed to create resident')
+        toast.error(data.error || 'Failed to create resident')
       }
     } catch (error) {
-      setMessage('Error creating resident')
+      toast.error('Error creating resident')
     } finally {
       setLoading(false)
     }
@@ -115,11 +116,7 @@ export default function CreateResident() {
           {loading ? <Loader2 className="animate-spin" size={20} /> : 'Create Account'}
         </button>
 
-        {message && (
-          <div className={`p-3 rounded-lg text-sm font-medium inline-block mt-4 ${message.includes('success') ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
-            {message}
-          </div>
-        )}
+
       </form>
     </div>
   )

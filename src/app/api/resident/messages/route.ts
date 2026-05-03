@@ -11,7 +11,14 @@ export async function GET() {
   }
   const userId = (session.user as any).id
   const messages = await prisma.message.findMany({
-    where: { OR: [{ senderId: Number(userId) }, { receiverId: Number(userId) }] },
+    where: { 
+      OR: [
+        { senderId: Number(userId) }, 
+        { receiverId: Number(userId) },
+        { isFromAdmin: true, receiverId: null } // Broadcasts
+      ] 
+    },
+    include: { sender: { select: { name: true } } },
     orderBy: { created_at: 'asc' },
   })
   return NextResponse.json(messages)
@@ -31,7 +38,6 @@ export async function POST(request: NextRequest) {
   const message = await prisma.message.create({
     data: {
       senderId: Number(userId),
-      // receiverId left null for admin messages; admin can fetch all
       complaintId: complaintId ? Number(complaintId) : undefined,
       content,
       isFromAdmin: false,
