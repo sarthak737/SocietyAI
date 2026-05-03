@@ -16,15 +16,17 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(errorParam ? (errorParam === 'CredentialsSignin' ? 'Invalid credentials' : errorParam) : '')
   const [loading, setLoading] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
 
   // If already logged in, redirect immediately
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    if (status === 'authenticated' && session?.user && !redirecting) {
+      setRedirecting(true)
       const userRole = (session.user as any).role
       const target = userRole === 'ADMIN' ? '/admin' : '/resident'
-      window.location.href = target
+      router.replace(target)
     }
-  }, [status, session])
+  }, [status, session, router, redirecting])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,12 +34,19 @@ function LoginForm() {
     setError('')
 
     try {
-      await signIn('credentials', {
+      const res = await signIn('credentials', {
+        redirect: false,
         email,
         password,
         role: role.toUpperCase(),
-        callbackUrl: role === 'admin' ? '/admin' : '/resident',
       })
+
+      if (res?.error) {
+        setError(res.error === 'CredentialsSignin' ? 'Invalid credentials' : res.error)
+        setLoading(false)
+      } else {
+        router.refresh()
+      }
     } catch (err) {
       console.error('Sign in error:', err)
       setError('An error occurred during sign in')
