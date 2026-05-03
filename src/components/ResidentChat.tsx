@@ -75,7 +75,7 @@ export default function ResidentChat({ complaintId }: { complaintId?: number }) 
 
   return (
     <div className="glass-panel p-4 rounded-2xl mt-8">
-      <h3 className="text-lg font-semibold mb-2">Chat with Admin</h3>
+      <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Chat with Admin</h3>
       <div ref={panelRef} className="h-60 overflow-y-auto space-y-2 p-2 bg-gray-50 dark:bg-slate-800 rounded mb-4">
         {messages.map(msg => (
           <div
@@ -89,7 +89,7 @@ export default function ResidentChat({ complaintId }: { complaintId?: number }) 
             {msg.content}
           </div>
         ))}
-        {messages.length === 0 && <p className="text-gray-500 text-sm">No messages yet.</p>}
+        {messages.length === 0 && <p className="text-gray-500 dark:text-gray-400 text-sm">No messages yet.</p>}
       </div>
       <form onSubmit={sendMessage} className="flex gap-2">
         <input

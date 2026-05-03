@@ -110,15 +110,15 @@ export default function ComplaintForm() {
   }
 
   return (
-    <div className="glass-panel rounded-3xl shadow-xl p-8 border border-white/60">
-      <div className="mb-6 pb-4 border-b border-gray-200">
-        <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">Submitting as</p>
-        <p className="text-lg font-bold text-gray-900">{session.user?.name} <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-sm ml-2">{(session.user as any).flat_number}</span></p>
+    <div className="glass-panel rounded-3xl shadow-xl p-8 border border-white/60 dark:border-slate-800">
+      <div className="mb-6 pb-4 border-b border-gray-200 dark:border-slate-700">
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Submitting as</p>
+        <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{session.user?.name} <span className="text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded text-sm ml-2">{(session.user as any).flat_number}</span></p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Complaint Description *
           </label>
           
@@ -127,7 +127,7 @@ export default function ComplaintForm() {
               rows={4}
               value={formData.complaint_text}
               onChange={(e) => setFormData({ ...formData, complaint_text: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full px-4 py-3 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-gray-900 dark:text-gray-100"
               placeholder="Describe your issue or click the mic to record..."
             />
             
@@ -177,8 +177,8 @@ export default function ComplaintForm() {
         {message && (
           <div className={`p-4 rounded-xl text-center font-medium ${
             message.includes('success') 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
+              : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
           }`}>
             {message}
           </div>

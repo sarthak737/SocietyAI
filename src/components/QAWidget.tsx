@@ -52,7 +52,7 @@ export default function QAWidget() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[350px] h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-fade-in z-50">
+        <div className="fixed bottom-6 right-6 w-[350px] h-[500px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-fade-in z-50">
           <div className="bg-indigo-600 p-4 text-white flex justify-between items-center">
             <div className="flex items-center gap-2 font-medium">
               <Bot className="w-5 h-5" />
@@ -63,27 +63,27 @@ export default function QAWidget() {
             </button>
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3">
+          <div className="flex-1 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-950 flex flex-col gap-3">
             {chat.map((msg, idx) => (
-              <div key={idx} className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'ai' ? 'bg-white border border-slate-200 text-slate-700 self-start rounded-tl-none' : 'bg-indigo-600 text-white self-end rounded-tr-none'}`}>
+              <div key={idx} className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'ai' ? 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-gray-200 self-start rounded-tl-none' : 'bg-indigo-600 text-white self-end rounded-tr-none'}`}>
                 {msg.text}
               </div>
             ))}
             {loading && (
-              <div className="bg-white border border-slate-200 text-slate-700 self-start p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-gray-200 self-start p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
                 <span className="text-sm">Thinking...</span>
               </div>
             )}
           </div>
 
-          <form onSubmit={askQuestion} className="p-3 bg-white border-t border-slate-200 flex gap-2">
+          <form onSubmit={askQuestion} className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex gap-2">
             <input
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Ask about rules..."
-              className="flex-1 p-2 bg-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
             />
             <button
               type="submit"
